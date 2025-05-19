@@ -3,6 +3,8 @@ import { GatewayController } from './controllers/gateway.controller';
 import { ConfigModule } from '@nestjs/config';
 import { CommonJwtModule } from '@app/common/jwt/jwt.module';
 import { HttpModule } from '@nestjs/axios';
+import { AuthController } from './controllers/auth.controller';
+import { CustomHttpService } from './http.service';
 
 @Module({
   imports: [
@@ -13,6 +15,7 @@ import { HttpModule } from '@nestjs/axios';
     CommonJwtModule,
     HttpModule,
   ],
-  controllers: [GatewayController],
+  providers: [CustomHttpService],
+  controllers: [GatewayController, AuthController],
 })
 export class GatewayModule {}
