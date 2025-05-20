@@ -16,8 +16,8 @@ services:
     build:
       context: .
       dockerfile: apps/auth/Dockerfile
-    ports:
-      - "3001:3001"
+    # ports:
+    #   - "3001:3001"
     environment:
       - MONGO_URI=mongodb://auth-db:27017/auth
     depends_on:
@@ -27,8 +27,8 @@ services:
     image: mongo
     container_name: auth-db
     restart: always
-    ports:
-      - "27017:27017"
+    # ports:
+    #   - "27017:27017"
     volumes:
       - auth-db-data:/data/db
 
@@ -36,8 +36,8 @@ services:
     build:
       context: .
       dockerfile: apps/event/Dockerfile
-    ports:
-      - "3002:3002"
+    # ports:
+    #   - "3002:3002"
     environment:
       - MONGO_URI=mongodb://event-db:27017/event
       - AUTH_SERVER_URL=http://auth:3001
@@ -48,8 +48,8 @@ services:
     image: mongo
     container_name: event-db
     restart: always
-    ports:
-      - "27018:27017"
+    # ports:
+    #   - "27018:27017"
     volumes:
       - event-db-data:/data/db
 
