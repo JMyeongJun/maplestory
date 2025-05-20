@@ -16,6 +16,7 @@ import {
   LoginHistory,
   LoginHistoryDocument,
 } from '../schemas/login-history.schema';
+import { UserRole } from '@app/common';
 
 @Injectable()
 export class UserService {
@@ -42,6 +43,13 @@ export class UserService {
       email: dto.email,
       password: hashed,
     });
+
+    const userCount = await this.userModel.countDocuments();
+
+    // 첫 회원가입은 관리자 권한 부여(과제 특성상 임시 로직)
+    if (userCount === 0) {
+      user.roles = [UserRole.ADMIN];
+    }
 
     return user.save();
   }

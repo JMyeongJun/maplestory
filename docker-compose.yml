@@ -33,7 +33,9 @@ services:
       - auth-db-data:/data/db
 
   event:
-    build: ./apps/event
+    build:
+      context: .
+      dockerfile: apps/event/Dockerfile
     ports:
       - "3002:3002"
     environment:

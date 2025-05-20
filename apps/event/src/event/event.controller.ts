@@ -12,7 +12,7 @@ export class EventController {
     return this.eventService.createEvent(dto);
   }
 
-  @Get('list')
+  @Get()
   getList() {
     return this.eventService.list();
   }

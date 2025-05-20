@@ -7,11 +7,11 @@ export class RewardController {
   constructor(private readonly rewardService: RewardService) {}
 
   @Post()
-  createEvent(@Body() dto: CreateRewardDto) {
+  createReward(@Body() dto: CreateRewardDto) {
     return this.rewardService.createReward(dto);
   }
 
-  @Get('list')
+  @Get()
   getList() {
     return this.rewardService.list();
   }
