@@ -35,7 +35,11 @@ export class UserController {
   // 친구 리스트 조회
   @Get(':id/friend')
   getFriends(@Param('id') id: string) {
-    console.log('asdlfknasdf');
     return this.userService.getFriends(id);
+  }
+
+  @Get(':id/login-history')
+  getLoginHistory(@Param('id') id: string) {
+    return this.userService.getLoginHistory(id);
   }
 }

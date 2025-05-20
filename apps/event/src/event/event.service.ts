@@ -1,4 +1,8 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  ForbiddenException,
+  Injectable,
+} from '@nestjs/common';
 import { CreateEventDto } from './dto/create-event.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Event, EventDocument } from '../schemas/event.schema';
@@ -9,13 +13,19 @@ import {
   RewardRequestDocument,
 } from '../schemas/reward-request.schema';
 import { RewardRequestStatus } from '@app/common/enums/reward-request-status.enum';
+import { CustomHttpService } from '@app/common/services/custom-http.service';
+import { EventCondition } from '@app/common/enums/event-condition.enum';
 
 @Injectable()
 export class EventService {
+  private readonly auth_host =
+    process.env.AUTH_SERVER_URL || 'http://localhost:3001';
+
   constructor(
     @InjectModel(Event.name) private readonly eventModel: Model<EventDocument>,
     @InjectModel(RewardRequest.name)
     private readonly rewardRequestModel: Model<RewardRequestDocument>,
+    private readonly httpService: CustomHttpService,
   ) {}
 
   async createEvent(dto: CreateEventDto) {
@@ -36,32 +46,62 @@ export class EventService {
   async requestReward(dto: RequestRewardDto) {
     const rewardReq = new this.rewardRequestModel(dto);
     rewardReq.status = RewardRequestStatus.FAILED;
-    const exists = await this.eventModel.findOne({
-      _id: dto.eventId,
-    });
-    if (!exists) {
+
+    try {
+      const event = await this.eventModel.findOne({ _id: dto.eventId });
+
+      if (!event) {
+        throw new ConflictException('해당 이벤트를 찾지 못했습니다.');
+      }
+      if (!event.isActive) {
+        throw new ConflictException('현재 이용가능한 이벤트가 아닙니다.');
+      }
+
+      const existRewardReq = await this.rewardRequestModel.findOne({
+        eventId: dto.eventId,
+        userId: dto.userId,
+        status: RewardRequestStatus.SUCCESS,
+      });
+
+      let conditionPassed = false;
+      switch (event.condition) {
+        case EventCondition.INVITE_FRIENDS: {
+          const friends: any[] = await this.httpService.get(
+            `${this.auth_host}/user/${dto.userId}/friend`,
+          );
+
+          conditionPassed = friends.length >= event.conditionValue;
+          break;
+        }
+        case EventCondition.LOGIN_COUNT: {
+          const loginHist: any[] = await this.httpService.get(
+            `${this.auth_host}/user/${dto.userId}/login-history`,
+          );
+
+          console.log(loginHist);
+
+          conditionPassed = loginHist.length >= event.conditionValue;
+          break;
+        }
+      }
+      if (!conditionPassed) {
+        throw new ForbiddenException('이벤트 조건을 만족하지 못했습니다.');
+      }
+
+      if (existRewardReq) {
+        throw new ConflictException('이미 요청완료된 이벤트입니다.');
+      }
+
+      rewardReq.isRewarded = !event.isRewardNeedApproved;
+
+      // todo: 보상 지급 로직
+
+      rewardReq.status = RewardRequestStatus.SUCCESS;
+    } catch (e) {
       await rewardReq.save();
-      throw new ConflictException('해당 이벤트를 찾지 못했습니다.');
+      throw e;
     }
 
-    if (exists.isActive) {
-      await rewardReq.save();
-      throw new ConflictException('현재 이용가능한 이벤트가 아닙니다.');
-    }
-
-    const existRewardReq = await this.rewardRequestModel.find({
-      eventId: dto.eventId,
-      userId: dto.userId,
-      status: RewardRequestStatus.SUCCESS,
-    });
-    if (existRewardReq.length > 0) {
-      await rewardReq.save();
-      throw new ConflictException('이미 요청완료된 이벤트입니다.');
-    }
-
-    // todo:: 보상 조건 로직 추가
-
-    rewardReq.status = RewardRequestStatus.SUCCESS;
     return rewardReq.save();
   }
 }

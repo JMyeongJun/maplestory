@@ -12,7 +12,7 @@ export class RewardRequest {
   @Prop({ required: true })
   userId: string;
 
-  @Prop({ required: true })
+  @Prop({ required: true, default: false })
   isRewarded: boolean;
 
   @Prop({

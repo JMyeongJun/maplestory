@@ -13,7 +13,7 @@ import { RolesGuard } from '@app/common/guards/roles.guard';
 import { Roles } from '@app/common/decorators/roles.decorator';
 import { UserRole } from '@app/common';
 import { Request } from 'express';
-import { CustomHttpService } from '../http.service';
+import { CustomHttpService } from '../../../../libs/common/src/services/custom-http.service';
 import { UpdateUserRolesDto } from 'apps/auth/src/user/dto/update-user-roles.dto';
 import { AuthLoginDto } from 'apps/auth/src/auth/dto/auth-login.dto';
 

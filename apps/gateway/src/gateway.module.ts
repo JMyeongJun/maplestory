@@ -4,7 +4,7 @@ import { ConfigModule } from '@nestjs/config';
 import { CommonJwtModule } from '@app/common/jwt/jwt.module';
 import { HttpModule } from '@nestjs/axios';
 import { AuthController } from './controllers/auth.controller';
-import { CustomHttpService } from './http.service';
+import { CustomHttpService } from '../../../libs/common/src/services/custom-http.service';
 
 @Module({
   imports: [

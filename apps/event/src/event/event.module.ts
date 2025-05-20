@@ -7,6 +7,8 @@ import {
   RewardRequest,
   RewardRequestSchema,
 } from '../schemas/reward-request.schema';
+import { HttpModule } from '@nestjs/axios';
+import { CustomHttpService } from '@app/common/services/custom-http.service';
 
 @Module({
   imports: [
@@ -14,8 +16,9 @@ import {
     MongooseModule.forFeature([
       { name: RewardRequest.name, schema: RewardRequestSchema },
     ]),
+    HttpModule,
   ],
   controllers: [EventController],
-  providers: [EventService],
+  providers: [EventService, CustomHttpService],
 })
 export class EventModule {}

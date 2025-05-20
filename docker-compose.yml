@@ -38,6 +38,7 @@ services:
       - "3002:3002"
     environment:
       - MONGO_URI=mongodb://event-db:27017/event
+      - AUTH_SERVER_URL=http://auth:3001
     depends_on:
       - event-db
 

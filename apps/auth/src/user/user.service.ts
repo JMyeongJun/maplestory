@@ -1,16 +1,21 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { User, UserDocument } from './user.schema';
+import { User, UserDocument } from '../schemas/user.schema';
 import { Model } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 import { UpdateUserRolesDto } from './dto/update-user-roles.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { InviteFriendDto } from './dto/invite-friend.dto';
-import { Friend, FriendDocument } from './friend.schema';
+import { Friend, FriendDocument } from '../schemas/friend.schema';
+import {
+  LoginHistory,
+  LoginHistoryDocument,
+} from '../schemas/login-history.schema';
 
 @Injectable()
 export class UserService {
@@ -18,6 +23,8 @@ export class UserService {
     @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
     @InjectModel(Friend.name)
     private readonly friendModel: Model<FriendDocument>,
+    @InjectModel(LoginHistory.name)
+    private readonly loginHistoryModel: Model<LoginHistoryDocument>,
   ) {}
 
   list() {
@@ -57,6 +64,10 @@ export class UserService {
   }
 
   async invite(dto: InviteFriendDto) {
+    if (dto.userId === dto.targetUserId) {
+      throw new BadRequestException('요청 유저가 같습니다.');
+    }
+
     const user = await this.userModel.findById(dto.targetUserId);
     if (!user) {
       throw new NotFoundException('유저가 없습니다.');
@@ -82,5 +93,11 @@ export class UserService {
     const friends = await this.friendModel.find({ userId: id });
 
     return friends;
+  }
+
+  async getLoginHistory(id: string) {
+    const hist = await this.loginHistoryModel.find({ userId: id });
+
+    return hist;
   }
 }
