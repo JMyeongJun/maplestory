@@ -7,6 +7,7 @@ import { CustomHttpService } from '../../../../libs/common/src/services/custom-h
 import { RequestWithUser } from '@app/common/types/request-with-user';
 import { CreateEventDto } from 'apps/event/src/event/dto/create-event.dto';
 import { CreateRewardDto } from 'apps/event/src/reward/dto/create-reward.dto';
+import { RewardApproveDto } from 'apps/event/src/event/dto/reward-approve.dto';
 
 @Controller()
 export class EventController {
@@ -52,6 +53,13 @@ export class EventController {
     const url = new URL(`${this.host}/event/reward/request`);
 
     return this.httpService.get(url.toString());
+  }
+
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(UserRole.ADMIN, UserRole.OPERATOR)
+  @Post('/event/reward/approve')
+  rewardApprove(@Body() dto: RewardApproveDto) {
+    return this.httpService.post(`${this.host}/event/reward/approve`, dto);
   }
 
   @UseGuards(AuthGuard('jwt'), RolesGuard)
