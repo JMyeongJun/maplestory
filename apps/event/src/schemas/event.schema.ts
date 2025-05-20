@@ -10,7 +10,7 @@ export class Event {
   title: string;
 
   @Prop({
-    type: [String],
+    type: String,
     enum: EventCondition,
     required: true,
   })
@@ -40,7 +40,14 @@ const EventSchema = SchemaFactory.createForClass(Event);
 // Virtual Field 설정
 EventSchema.virtual('isActive').get(function (this: Event) {
   const now = new Date();
-  return this.startDate <= now && now <= this.endDate;
+
+  const start = new Date(this.startDate);
+  start.setHours(0, 0, 0, 0); // 자정 시작
+
+  const end = new Date(this.endDate);
+  end.setHours(23, 59, 59, 999); // 하루의 끝
+
+  return start <= now && now <= end;
 });
 
 export { EventSchema };

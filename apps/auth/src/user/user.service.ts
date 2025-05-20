@@ -9,11 +9,15 @@ import { Model } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 import { UpdateUserRolesDto } from './dto/update-user-roles.dto';
 import { CreateUserDto } from './dto/create-user.dto';
+import { InviteFriendDto } from './dto/invite-friend.dto';
+import { Friend, FriendDocument } from './friend.schema';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
+    @InjectModel(Friend.name)
+    private readonly friendModel: Model<FriendDocument>,
   ) {}
 
   list() {
@@ -50,5 +54,19 @@ export class UserService {
     return this.userModel.findOne({
       email: email,
     });
+  }
+
+  async invite(dto: InviteFriendDto) {
+    const user = await this.userModel.findById(dto.targetUserId);
+    if (!user) {
+      throw new NotFoundException('유저가 없습니다.');
+    }
+
+    const friend = new this.friendModel({
+      userId: dto.userId,
+      targetUserId: dto.targetUserId,
+    });
+
+    return friend.save();
   }
 }

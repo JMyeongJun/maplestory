@@ -20,4 +20,8 @@ export class EventService {
 
     return event.save();
   }
+
+  list() {
+    return this.eventModel.find();
+  }
 }
