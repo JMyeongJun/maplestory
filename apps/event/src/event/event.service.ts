@@ -78,8 +78,6 @@ export class EventService {
             `${this.auth_host}/user/${dto.userId}/login-history`,
           );
 
-          console.log(loginHist);
-
           conditionPassed = loginHist.length >= event.conditionValue;
           break;
         }
@@ -103,5 +101,9 @@ export class EventService {
     }
 
     return rewardReq.save();
+  }
+
+  async getRequestedRewardList(userId: string) {
+    return this.rewardRequestModel.find(userId ? { userId: userId } : {});
   }
 }
