@@ -1,3 +1,4 @@
+import { RewardRequestStatus } from '@app/common/enums/reward-request-status.enum';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 
@@ -12,7 +13,14 @@ export class RewardRequest {
   userId: string;
 
   @Prop({ required: true })
-  rewarded: boolean;
+  isRewarded: boolean;
+
+  @Prop({
+    type: String,
+    enum: RewardRequestStatus,
+    required: true,
+  })
+  status: RewardRequestStatus;
 
   @Prop({ default: Date.now })
   createdAt: Date;
