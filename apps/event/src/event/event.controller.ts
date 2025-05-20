@@ -2,6 +2,7 @@ import { Body, Controller, Get, Post, Query } from '@nestjs/common';
 import { CreateEventDto } from './dto/create-event.dto';
 import { EventService } from './event.service';
 import { RequestRewardDto } from './dto/request-reward.dto';
+import { RewardApproveDto } from './dto/reward-approve.dto';
 
 @Controller('event')
 export class EventController {
@@ -25,5 +26,10 @@ export class EventController {
   @Get('reward/request')
   getRequestedRewardList(@Query('userId') userId: string) {
     return this.eventService.getRequestedRewardList(userId);
+  }
+
+  @Post('reward/request/approve')
+  rewardApprove(@Body() dto: RewardApproveDto) {
+    return this.eventService.rewardApprove(dto);
   }
 }

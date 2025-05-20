@@ -2,6 +2,7 @@ import {
   ConflictException,
   ForbiddenException,
   Injectable,
+  NotFoundException,
 } from '@nestjs/common';
 import { CreateEventDto } from './dto/create-event.dto';
 import { InjectModel } from '@nestjs/mongoose';
@@ -15,6 +16,7 @@ import {
 import { RewardRequestStatus } from '@app/common/enums/reward-request-status.enum';
 import { CustomHttpService } from '@app/common/services/custom-http.service';
 import { EventCondition } from '@app/common/enums/event-condition.enum';
+import { RewardApproveDto } from './dto/reward-approve.dto';
 
 @Injectable()
 export class EventService {
@@ -92,6 +94,10 @@ export class EventService {
 
       rewardReq.isRewarded = !event.isRewardNeedApproved;
 
+      if (rewardReq.isRewarded) {
+        rewardReq.rewardedAt = new Date();
+      }
+
       // todo: 보상 지급 로직
 
       rewardReq.status = RewardRequestStatus.SUCCESS;
@@ -105,5 +111,23 @@ export class EventService {
 
   async getRequestedRewardList(userId: string) {
     return this.rewardRequestModel.find(userId ? { userId: userId } : {});
+  }
+
+  async rewardApprove(dto: RewardApproveDto) {
+    const rewards = await this.rewardRequestModel.find({
+      _id: dto.rewardRequestId,
+      status: RewardRequestStatus.SUCCESS,
+    });
+
+    if (rewards.length === 0) {
+      throw new NotFoundException('해당 요청건이 존재하지 않습니다.');
+    }
+
+    const reward = rewards[0];
+
+    reward.isRewarded = true;
+    reward.rewardedAt = new Date();
+
+    return reward.save();
   }
 }
