@@ -62,11 +62,25 @@ export class UserService {
       throw new NotFoundException('유저가 없습니다.');
     }
 
+    const existFriend = await this.friendModel.find({
+      userId: dto.userId,
+      targetUserId: dto.targetUserId,
+    });
+    if (existFriend.length > 0) {
+      throw new ConflictException('이미 친구 요청을 보냈습니다.');
+    }
+
     const friend = new this.friendModel({
       userId: dto.userId,
       targetUserId: dto.targetUserId,
     });
 
     return friend.save();
+  }
+
+  async getFriends(id: string) {
+    const friends = await this.friendModel.find({ userId: id });
+
+    return friends;
   }
 }

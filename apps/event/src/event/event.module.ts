@@ -3,10 +3,17 @@ import { EventController } from './event.controller';
 import { EventService } from './event.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Event, EventSchema } from '../schemas/event.schema';
+import {
+  RewardRequest,
+  RewardRequestSchema,
+} from '../schemas/reward-request.schema';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: Event.name, schema: EventSchema }]),
+    MongooseModule.forFeature([
+      { name: RewardRequest.name, schema: RewardRequestSchema },
+    ]),
   ],
   controllers: [EventController],
   providers: [EventService],

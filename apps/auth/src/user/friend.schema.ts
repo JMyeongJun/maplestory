@@ -5,7 +5,7 @@ export type FriendDocument = Friend & Document;
 
 @Schema()
 export class Friend {
-  @Prop({ required: true, unique: true })
+  @Prop({ required: true })
   userId: string;
 
   @Prop({ required: true })
@@ -19,3 +19,6 @@ export class Friend {
 }
 
 export const FriendSchema = SchemaFactory.createForClass(Friend);
+
+// 복합 유니크 인덱스 추가
+FriendSchema.index({ userId: 1, targetUserId: 1 }, { unique: true });

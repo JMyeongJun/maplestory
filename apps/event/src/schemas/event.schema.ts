@@ -28,6 +28,9 @@ export class Event {
   @Prop()
   description: string;
 
+  @Prop({ default: false })
+  isRewardNeedApproved: boolean;
+
   @Prop({ default: Date.now })
   createdAt: Date;
 
